@@ -56,7 +56,6 @@ class DynamicPersistentSegTree{
         if (i >= l && j <= r){
             Node *newNode = create_child(curr);
             newNode->prop += value;
-            lazy(i, j, newNode);
             return newNode;
         }
         if (i > r || j < l){
