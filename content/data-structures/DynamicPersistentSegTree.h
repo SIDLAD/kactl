@@ -69,8 +69,6 @@ class DynamicPersistentSegTree{
         newNode->val = newNode->left->val + newNode->right->val;
         return newNode;
     }
-public:
-    vector<Node *> ptrs{};
     int query(int i, int j, int l, int r, Node *curr = nullptr){
         if (curr == nullptr)
             curr = ptrs.back();
@@ -83,6 +81,12 @@ public:
         }
         int mid = i + (j - i) / 2;
         return query(i, mid, l, r, curr->left) + query(mid + 1, j, l, r, curr->right);
+    }
+public:
+    vector<Node *> ptrs{};
+    int query(int i, int j, int version=-1){
+        if (version == -1) version = ptrs.size() - 1;
+        return query(0, n - 1, i, j, ptrs[version]);
     }
     void construct(const vector<int> &vec){
         if (vec.empty())
