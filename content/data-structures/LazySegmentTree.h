@@ -1,5 +1,5 @@
 /**
- * Author: Simon Lindholm
+ * Author: Siddharth Shah
  * Date: 2016-10-08
  * License: CC0
  * Source: me
@@ -11,56 +11,92 @@
  * Status: stress-tested a bit
  */
 #pragma once
+template <typename T = int, typename V = T>
+struct segtree
+{
+	int n;
+	vector<T> tree;
+	// vector<V> lazy;
+	T zero = 0; // Change according to QUERY operation
+	// V lazy_zero = 0; // Change according to MODIFY operation
+	segtree(int sz)
+	{
+		n = sz;
+		tree.clear(), tree.resize(2 * sz - 1, zero);
+		;
+		// lazy.clear(), lazy.resize(2 * sz - 1, lazy_zero);
+	}
 
-#include "../various/BumpAllocator.h"
+	template <typename U>
+	segtree(vector<U> &v) : segtree(v.size()) { build(v); }
+	T combine(T a, T b) { return a + b; } // Change according to QUERY operation
 
-const int inf = 1e9;
-struct Node {
-	Node *l = 0, *r = 0;
-	int lo, hi, mset = inf, madd = 0, val = -inf;
-	Node(int lo,int hi):lo(lo),hi(hi){} // Large interval of -inf
-	Node(vi& v, int lo, int hi) : lo(lo), hi(hi) {
-		if (lo + 1 < hi) {
-			int mid = lo + (hi - lo)/2;
-			l = new Node(v, lo, mid); r = new Node(v, mid, hi);
-			val = max(l->val, r->val);
+	template <typename U>
+	void build(vector<U> &v, int id = 0, int segl = 0, int segr = -1)
+	{
+		if (segr == -1)
+			segr = n - 1;
+		if (segl == segr)
+		{
+			tree[id] = v[segl]; // Change according to MODIFY operation
+			return;
 		}
-		else val = v[lo];
+		int mid = (segl + segr) / 2;
+		build(v, id + 1, segl, mid);
+		build(v, id + 2 * (mid - segl + 1), mid + 1, segr);
+		tree[id] = combine(tree[id + 1], tree[id + 2 * (mid - segl + 1)]);
 	}
-	int query(int L, int R) {
-		if (R <= lo || hi <= L) return -inf;
-		if (L <= lo && hi <= R) return val;
-		push();
-		return max(l->query(L, R), r->query(L, R));
+	/* void propagate(int id, int segl, int segr){
+		if(lazy[id] == lazy_zero)return;
+		if(segl != segr){
+			int mid = (segl + segr) / 2;
+			array<int, 2> children= {id + 1, id + 2 * (mid - segl + 1)};
+			for(auto child : children){
+				tree[child] = lazy[id];  // Change according to MODIFY operation
+				lazy[child] = lazy[id];  // Change according to MODIFY operation
+			}
+		}
+		lazy[id] = lazy_zero;
+	} */
+
+	template <typename U>
+	void modify(U val, int index_l, int index_r, int id = 0, int segl = 0, int segr = -1)
+	{
+		if (segr == -1)
+			segr = n - 1;
+		if (index_l > index_r || index_l > segr || segl > index_r)
+		{
+			return;
+		}
+		// propagate(id, segl, segr);
+		if (segl >= index_l && segr <= index_r)
+		{
+			tree[id] = val; // Change according to MODIFY operation
+			// lazy[id] = val; // Change according to MODIFY operation
+			return;
+		}
+		int mid = (segl + segr) / 2;
+		modify(val, index_l, index_r, id + 1, segl, mid);
+		modify(val, index_l, index_r, id + 2 * (mid - segl + 1), mid + 1, segr);
+		tree[id] = combine(tree[id + 1], tree[id + 2 * (mid - segl + 1)]);
 	}
-	void set(int L, int R, int x) {
-		if (R <= lo || hi <= L) return;
-		if (L <= lo && hi <= R) mset = val = x, madd = 0;
-		else {
-			push(), l->set(L, R, x), r->set(L, R, x);
-			val = max(l->val, r->val);
+
+	T query(int index_l, int index_r, int id = 0, int segl = 0, int segr = -1)
+	{
+		if (segr == -1)
+			segr = n - 1;
+		if (index_l > index_r || index_l > segr || segl > index_r)
+		{
+			return zero;
 		}
-	}
-	void add(int L, int R, int x) {
-		if (R <= lo || hi <= L) return;
-		if (L <= lo && hi <= R) {
-			if (mset != inf) mset += x;
-			else madd += x;
-			val += x;
+		// propagate(id, segl, segr);
+		if (segl >= index_l && segr <= index_r)
+		{
+			return tree[id];
 		}
-		else {
-			push(), l->add(L, R, x), r->add(L, R, x);
-			val = max(l->val, r->val);
-		}
-	}
-	void push() {
-		if (!l) {
-			int mid = lo + (hi - lo)/2;
-			l = new Node(lo, mid); r = new Node(mid, hi);
-		}
-		if (mset != inf)
-			l->set(lo,hi,mset), r->set(lo,hi,mset), mset = inf;
-		else if (madd)
-			l->add(lo,hi,madd), r->add(lo,hi,madd), madd = 0;
+		int mid = (segl + segr) / 2;
+		T leftVal = query(index_l, index_r, id + 1, segl, mid);
+		T rightVal = query(index_l, index_r, id + 2 * (mid - segl + 1), mid + 1, segr);
+		return combine(leftVal, rightVal);
 	}
 };
