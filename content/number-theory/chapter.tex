@@ -39,10 +39,12 @@
 \section{Primes}
 	$p=962592769$ is such that $2^{21} \mid p-1$, which may be useful. For hashing
 	use 970592641 (31-bit number), 31443539979727 (45-bit), 3006703054056749
-	(52-bit). There are 78498 primes less than 1\,000\,000.
+	(52-bit). There are 78498 primes less than $1\,000\,000$.
 
 	Primitive roots exist modulo any prime power $p^a$, except for $p = 2, a > 2$, and there are $\phi(\phi(p^a))$ many.
 	For $p = 2, a > 2$, the group $\mathbb Z_{2^a}^\times$ is instead isomorphic to $\mathbb Z_2 \times \mathbb Z_{2^{a-2}}$.
+	\kactlimport{FastPrimeCounting.h}
+
 
 \section{Estimates}
 	$\sum_{d|n} d = O(n \log \log n)$.
@@ -62,3 +64,11 @@
   $ g(n) = \sum_{n|d} f(d) \Leftrightarrow f(n) = \sum_{n|d} \mu(d/n)g(d)$
 
  $ g(n) = \sum_{1 \leq m \leq n} f(\left\lfloor\frac{n}{m}\right \rfloor ) \Leftrightarrow f(n) = \sum_{1\leq m\leq n} \mu(m)g(\left\lfloor\frac{n}{m}\right\rfloor)$
+
+	\kactlimport{Mobius.h}
+
+\section{Stirling Approximation}
+	\[
+n! = \sqrt{2\pi n} \left( \frac{n}{e} \right)^n \left( 1 + \frac{1}{12n} + \frac{1}{288n^2} - \frac{139}{51840n^3} + \mathcal{O}\left(\frac{1}{n^4}\right) \right)
+\]
+
