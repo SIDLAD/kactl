@@ -8,3 +8,11 @@
  *  Consider also: LineContainer (ch. Data structures), monotone queues, ternary search.
  * Time: O(N^2)
  */
+#pragma once
+
+for(int i = n - 2;i>=0;i--) for(int j = i + 1;j<n;j++) {
+    int mn = INF, cost = costF(i, j);
+    for(int k = max(i, opt[i][j - 1]);k<=min(j - 1, opt[i + 1][j]);k++) if(mn > dp[i][k] + dp[k][j] + cost)
+    {opt[i][j] = k; mn = dp[i][k] + dp[k][j] + cost;}
+    dp[i][j] = mn;
+}
